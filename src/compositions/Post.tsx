@@ -16,10 +16,10 @@ import {
 } from "remotion";
 import { BRAND, titleFontSize } from "../shared/brand";
 import { FilmGrain } from "../shared/FilmGrain";
+import { HighlightedTitle } from "../shared/HighlightedTitle";
 
-// Typewriter speeds
-const CHAR_FRAMES = 2;          // main text: 1 char per 2 frames (~15 chars/sec)
-const SUBTITLE_CHAR_FRAMES = 1; // subtitle: 1 char per frame (~30 chars/sec)
+const CHAR_FRAMES = 2;
+const SUBTITLE_CHAR_FRAMES = 1;
 
 // ── Slide types ───────────────────────────────────────────────────────────────
 export interface CoverSlide {
@@ -63,58 +63,6 @@ function hookFontSize(text: string): string {
   if (len > 28) return "118px";
   if (len > 20) return "138px";
   return "155px";
-}
-
-function HighlightedTitle({
-  text,
-  highlightWord,
-  fontSize,
-}: Readonly<{
-  text: string;
-  highlightWord?: string;
-  fontSize: string;
-}>) {
-  const baseStyle: React.CSSProperties = {
-    fontFamily: BRAND.FONT_TITLE,
-    color: BRAND.MINT,
-    fontSize,
-    lineHeight: 1.15,
-    letterSpacing: "-2px",
-    textTransform: "uppercase",
-    whiteSpace: "pre-line",
-  };
-
-  if (!highlightWord) {
-    return <span style={baseStyle}>{text}</span>;
-  }
-
-  const upper = text.toUpperCase();
-  const hw = highlightWord.toUpperCase();
-  const idx = upper.indexOf(hw);
-  if (idx === -1) return <span style={baseStyle}>{text}</span>;
-
-  const before = text.slice(0, idx);
-  const word   = text.slice(idx, idx + hw.length);
-  const after  = text.slice(idx + hw.length);
-
-  return (
-    <span style={baseStyle}>
-      {before}
-      <span
-        style={{
-          background: BRAND.AMBER,
-          color: BRAND.BG_DARK,
-          padding: "0 10px 4px",
-          borderRadius: "6px",
-          display: "inline",
-          letterSpacing: "-1px",
-        }}
-      >
-        {word}
-      </span>
-      {after}
-    </span>
-  );
 }
 
 // ── Cover slide ───────────────────────────────────────────────────────────────

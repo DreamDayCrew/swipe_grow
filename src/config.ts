@@ -19,6 +19,8 @@ export const CONFIG = {
   contentType: "post" as ContentType,
   reelId: "DM-POST-01",
   title: "Our Brain is Awesome",
+  reelCategory: "",   // set when contentType is reel_no_voice
+  reelTitle: "",      // set when contentType is reel_no_voice
 
   // ── Hook (reel_no_voice only) ──────────────────────────
   hook: {

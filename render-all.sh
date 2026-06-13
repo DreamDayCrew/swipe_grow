@@ -1,73 +1,53 @@
 #!/bin/bash
 # swipe_grow — render-all.sh
-# Bulk renders every config file in the configs/ folder.
-# Each config file must export CONFIG with reelId set.
-#
-# Usage:
-#   bash render-all.sh
+# Renders all 12 bulk reels. Each ID must be registered in Root.tsx via configs/index.ts.
+# Usage: bash render-all.sh
+# Output: out/<ID>.mp4
 
-CONFIGS_DIR="./configs"
-OUT_DIR="./out"
-SRC_CONFIG="./src/config.ts"
-BACKUP_CONFIG="./src/config.backup.ts"
+set -e
 
-mkdir -p "$OUT_DIR"
+REELS=(
+  MA-04
+  QP-05
+  WA-04
+  DM-05
+  MA-05
+  QP-07
+  WA-05
+  MA-06
+  WA-06
+  MA-07
+  MA-09
+  WA-07
+)
 
-# Check configs folder exists
-if [ ! -d "$CONFIGS_DIR" ]; then
-  echo "No configs/ folder found. Create configs/HD-10.ts etc first."
-  exit 1
-fi
+mkdir -p out
 
-# Backup current config.ts
-cp "$SRC_CONFIG" "$BACKUP_CONFIG"
-
-TOTAL=0
-SUCCESS=0
+TOTAL=${#REELS[@]}
+DONE=0
 FAILED=()
 
 echo ""
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "  swipe_grow — Bulk Render"
-echo "  Configs found: $(ls $CONFIGS_DIR/*.ts 2>/dev/null | wc -l)"
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  swipe_grow — bulk render ($TOTAL reels)"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
 
-for config_file in "$CONFIGS_DIR"/*.ts; do
-  config_name=$(basename "$config_file" .ts)
-  TOTAL=$((TOTAL + 1))
-
-  echo "[$TOTAL] Rendering: $config_name"
-
-  # Swap config
-  cp "$config_file" "$SRC_CONFIG"
-
-  # Render
-  npx remotion render "$config_name" "$OUT_DIR/${config_name}.mp4" --quiet
-
-  if [ $? -eq 0 ]; then
-    SUCCESS=$((SUCCESS + 1))
-    echo "    ✓ Done → out/${config_name}.mp4"
+for ID in "${REELS[@]}"; do
+  echo "[$((DONE + 1))/$TOTAL] Rendering $ID ..."
+  if npx remotion render src/index.ts "$ID" "out/$ID.mp4" --log=error; then
+    DONE=$((DONE + 1))
+    echo "  ✓ out/$ID.mp4"
   else
-    FAILED+=("$config_name")
-    echo "    ✗ Failed — skipping"
+    FAILED+=("$ID")
+    echo "  ✗ $ID failed — continuing"
   fi
-
   echo ""
 done
 
-# Restore original config
-cp "$BACKUP_CONFIG" "$SRC_CONFIG"
-rm "$BACKUP_CONFIG"
-
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-echo "  Done: $SUCCESS / $TOTAL rendered"
-
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "  Done: $DONE/$TOTAL rendered successfully"
 if [ ${#FAILED[@]} -gt 0 ]; then
-  echo "  Failed:"
-  for f in "${FAILED[@]}"; do
-    echo "    - $f"
-  done
+  echo "  Failed: ${FAILED[*]}"
 fi
-
-echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
